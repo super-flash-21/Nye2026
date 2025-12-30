@@ -11,21 +11,10 @@ import { RSVPData } from '../types';
 const rsvpSchema = z.object({
   name: z.string().min(2, "Name is required"),
   has_guests: z.enum(["yes", "no"], { message: "Please select if bringing guests" }),
-  guest_count: z.string().refine((val) => {
-    if (val === "" || val === undefined) return false;
-    const num = parseInt(val);
-    return num > 0;
-  }, "Number of guests is required"),
-  total_people: z.string().refine((val) => {
-    if (val === "" || val === undefined) return false;
-    const num = parseInt(val);
-    return num > 0;
-  }, "Total people is required"),
+  guest_count: z.string().optional(),
+  total_people: z.string().optional(),
   will_drink: z.enum(["yes", "no"], { message: "Please select if you will drink" }),
-  drink_type: z.string().refine((val) => {
-    if (val === "" || val === undefined) return false;
-    return ["Vodka", "Whiskey", "Beer"].includes(val);
-  }, "Please select a drink type"),
+  drink_type: z.string().optional(),
   snack_suggestions: z.string().max(300).optional(),
   special_notes: z.string().max(300).optional(),
 });
@@ -44,7 +33,8 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
     resolver: zodResolver(rsvpSchema),
     defaultValues: {
       has_guests: undefined,
-      total_people: undefined,
+      guest_count: "0",
+      total_people: "1",
       will_drink: undefined,
     }
   });
@@ -71,9 +61,9 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
         name: formData.name,
         has_guests: formData.has_guests === "yes",
         guest_count: parseInt(formData.guest_count || "0"),
-        total_people: parseInt(formData.total_people),
+        total_people: parseInt(formData.total_people || "1"),
         will_drink: formData.will_drink === "yes",
-        drink_type: (formData.will_drink === "yes" ? formData.drink_type : "None") as any,
+        drink_type: (formData.will_drink === "yes" ? (formData.drink_type || "None") : "None") as any,
         snack_suggestions: formData.snack_suggestions || "",
         special_notes: formData.special_notes || "",
         total_amount: totalAmount,
