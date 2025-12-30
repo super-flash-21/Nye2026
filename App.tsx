@@ -63,7 +63,7 @@ const App: React.FC = () => {
             Back Home
           </button>
         </nav>
-        <GuestList />
+        <GuestList onClaimSpot={scrollToRSVP} />
         <footer className="py-10 border-t border-zinc-900 bg-black text-center text-zinc-600">
           <p className="text-xs uppercase tracking-[0.3em]">Midnight Madness 2026 • Exclusive Entry Only</p>
         </footer>
