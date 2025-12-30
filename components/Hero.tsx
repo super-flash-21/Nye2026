@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { CountdownTimer } from './CountdownTimer';
 
 interface HeroProps {
   onRSVPClick: () => void;
@@ -19,6 +20,8 @@ export const Hero: React.FC<HeroProps> = ({ onRSVPClick, onViewGuestsClick }) =>
           <br />
           RSVP
         </h1>
+        
+        <CountdownTimer />
         
         <p className="text-xl md:text-2xl text-zinc-400 font-light tracking-[0.2em] uppercase animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-200">
           Black Dress. Great Food. Midnight Madness.

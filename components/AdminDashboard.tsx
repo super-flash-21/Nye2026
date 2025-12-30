@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { fetchAllRSVPs } from '../services/supabase';
+import { fetchAllRSVPs } from '../services/firebase';
 import { RSVPData, AdminStats } from '../types';
 import { ADMIN_PASSWORD } from '../constants';
 

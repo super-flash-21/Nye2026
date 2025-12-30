@@ -5,16 +5,27 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import confetti from 'canvas-confetti';
 import { COST_PER_PERSON } from '../constants';
-import { submitRSVP } from '../services/supabase';
+import { submitRSVP } from '../services/firebase';
 import { RSVPData } from '../types';
 
 const rsvpSchema = z.object({
-  name: z.string().min(2, "Name is too short"),
-  has_guests: z.enum(["yes", "no"]),
-  guest_count: z.string().optional(),
-  total_people: z.string(),
-  will_drink: z.enum(["yes", "no"]),
-  drink_type: z.enum(["Vodka", "Whiskey", "Beer"]).optional(),
+  name: z.string().min(2, "Name is required"),
+  has_guests: z.enum(["yes", "no"], { message: "Please select if bringing guests" }),
+  guest_count: z.string().refine((val) => {
+    if (val === "" || val === undefined) return false;
+    const num = parseInt(val);
+    return num > 0;
+  }, "Number of guests is required"),
+  total_people: z.string().refine((val) => {
+    if (val === "" || val === undefined) return false;
+    const num = parseInt(val);
+    return num > 0;
+  }, "Total people is required"),
+  will_drink: z.enum(["yes", "no"], { message: "Please select if you will drink" }),
+  drink_type: z.string().refine((val) => {
+    if (val === "" || val === undefined) return false;
+    return ["Vodka", "Whiskey", "Beer"].includes(val);
+  }, "Please select a drink type"),
   snack_suggestions: z.string().max(300).optional(),
   special_notes: z.string().max(300).optional(),
 });
@@ -32,9 +43,9 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<RSVPFormInputs>({
     resolver: zodResolver(rsvpSchema),
     defaultValues: {
-      has_guests: "no",
-      total_people: "1",
-      will_drink: "no",
+      has_guests: undefined,
+      total_people: undefined,
+      will_drink: undefined,
     }
   });
 
@@ -94,6 +105,7 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
         <div className="gold-bg p-8 text-black text-center">
           <h2 className="text-3xl font-display font-bold">Secure Your Spot</h2>
           <p className="font-medium opacity-80">RSVP by December 25th</p>
+          <p className="text-sm mt-2 opacity-70">Registration closes at 3:00 PM on December 31st, 2025</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
@@ -124,6 +136,7 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
                 </div>
               </label>
             </div>
+            {errors.has_guests && <p className="text-red-500 text-xs">{errors.has_guests.message}</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -138,12 +151,14 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
                     setValue("total_people", (count + 1).toString());
                   }}
                 >
+                  <option value="">Select guests</option>
                   <option value="1">1 Guest</option>
                   <option value="2">2 Guests</option>
                   <option value="3">3 Guests</option>
                   <option value="4">4 Guests</option>
                   <option value="5">5+ Guests</option>
                 </select>
+                {errors.guest_count && <p className="text-red-500 text-xs">{errors.guest_count.message}</p>}
               </div>
             )}
 
@@ -158,6 +173,7 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
                   <option key={num} value={num.toString()}>{num} {num === 1 ? 'Person' : 'People'}</option>
                 ))}
               </select>
+              {errors.total_people && <p className="text-red-500 text-xs">{errors.total_people.message}</p>}
             </div>
           </div>
 
@@ -177,6 +193,7 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
                 </div>
               </label>
             </div>
+            {errors.will_drink && <p className="text-red-500 text-xs">{errors.will_drink.message}</p>}
           </div>
 
           {willDrink === "yes" && (
@@ -192,6 +209,7 @@ export const RSVPForm: React.FC<RSVPFormProps> = ({ onSuccess }) => {
                   </label>
                 ))}
               </div>
+              {errors.drink_type && <p className="text-red-500 text-xs">{errors.drink_type.message}</p>}
             </div>
           )}
 
