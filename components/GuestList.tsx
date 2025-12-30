@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchAllRSVPs } from '../services/firebase';
 import { RSVPData } from '../types';
 
-export const GuestList: React.FC = () => {
+export const GuestList: React.FC<{onClaimSpot:()=>void}> = ({onClaimSpot}) => {
   const [rsvps, setRsvps] = useState<RSVPData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -75,7 +75,7 @@ export const GuestList: React.FC = () => {
       <div className="mt-20 text-center">
         <p className="text-zinc-600 text-xs uppercase tracking-widest mb-4">Are you on the list?</p>
         <button 
-          onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+          onClick={onClaimSpot}
           className="text-[#BF953F] hover:underline underline-offset-8 transition-all font-bold"
         >
           CLAIM YOUR SPOT NOW
